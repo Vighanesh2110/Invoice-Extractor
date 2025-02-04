@@ -1,0 +1,14 @@
+streamlit
+google-generativeai
+python-dotenv
+langchain
+PyPDF2
+chromadb
+faiss-cpu
+streamlit-lottie
+
+#  to call all pip install -r requirements.txt
+# //1. setup python and environment path set kela
+# //2. all dependencies install kelet using pip
+# //3. for run streamlit run app.py
+# //4. add api googlestudioAI.
