@@ -11,7 +11,7 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Load model
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # Function to load image details
 def get_gemini_response(input, image, prompt):
@@ -162,3 +162,4 @@ st.markdown("""
 
 
 #for running program type this command in terminal = "python -m streamlit run app.py"
+
