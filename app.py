@@ -1,8 +1,10 @@
 import os
 import streamlit as st
+
 from PIL import Image
 import google.generativeai as genai
 from dotenv import load_dotenv
+import base64
 
 # Load environment variables
 load_dotenv()
@@ -14,8 +16,25 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 # Function to load image details
-def get_gemini_response(input, image, prompt):
-    response = model.generate_content([input, image[0], prompt])
+def get_gemini_response(user_input, image_parts, context_text):
+    # Convert raw bytes to base64
+    image_b64 = base64.b64encode(image_parts[0]["data"]).decode("utf-8")
+
+    response = model.generate_content([
+        {
+            "role": "user",
+            "parts": [
+                {"text": context_text},
+                {"text": user_input},
+                {
+                    "inline_data": {
+                        "mime_type": image_parts[0]["mime_type"],
+                        "data": image_b64
+                    }
+                }
+            ]
+        }
+    ])
     return response.text
 
 def input_image_details(uploaded_file):
@@ -35,7 +54,7 @@ st.markdown(
     <style>
     /* Custom styling */
     body {
-        background-color: #f5f5f5;
+        background-color:rgb(172, 59, 59);
         font-family: 'Arial', sans-serif;
         background: url('https://your-animation-url.com/ai-animation.gif') no-repeat center center fixed;
         background-size: cover;
@@ -132,7 +151,7 @@ uploaded_file = st.file_uploader("Choose an image of the invoice...", type=["jpg
 
 if uploaded_file is not None:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Invoice Image", use_column_width=True)
+    st.image(image, caption="Uploaded Invoice Image", use_container_width=True)  # ✅ updated here
 
 # Submit button and output section
 submit = st.button("🔍 Extract Details")
@@ -145,7 +164,11 @@ if submit:
     else:
         try:
             image_data = input_image_details(uploaded_file)
-            response = get_gemini_response(input_prompt, image_data, "You are an expert in understanding invoices. Analyze the provided invoice and answer the question.")
+            response = get_gemini_response(
+                input_prompt,
+                image_data,
+                "You are an expert in understanding invoices. Analyze the provided invoice and answer the question."
+            )
             
             # Display response
             st.subheader("💡 The Response is:")
@@ -156,9 +179,8 @@ if submit:
 # Footer section
 st.markdown("""
     ---
-    Made with ❤️ by Tech_Titans. 
+    Made with ❤️ by InvoIntelli. 
     """)
-
 
 
 #for running program type this command in terminal = "python -m streamlit run app.py"
